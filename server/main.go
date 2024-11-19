@@ -42,10 +42,25 @@ func main(){
 
 	r:=gin.Default();
 
+	r.GET("/pages", pagesBySearchKeyword)
 	r.GET("/pages/:id", pageByTitle)
 	r.POST("/pages", postPage)
 	r.Run()
 	
+}
+
+func pagesBySearchKeyword(c *gin.Context){
+
+	keyword := c.Query("q")
+	pages, err := getpagesBySearchKeyword(keyword)
+
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"err":err})
+		fmt.Println(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, pages)
 }
 
 
@@ -53,14 +68,14 @@ func pageByTitle(c *gin.Context){
 
 	page, err := getPageByTitle(c.Param("id"))
 
+	
+
 	if err !=nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err})
 		fmt.Println(err)
 		return
 	}
 
-
-	// c.JSON(http.StatusOK, page)
 	c.JSON(http.StatusOK, page)
 }
 
@@ -90,6 +105,28 @@ func postPage(c *gin.Context){
 	c.JSON(http.StatusCreated, new)
 
 
+}
+
+func getpagesBySearchKeyword(keyword string)([]Page,error){
+	var pages []Page
+	rows, err := db.Query("select * from page where source &@ $1", keyword)
+	if err != nil {
+		return nil, fmt.Errorf("pagesBySearchKeyword %s: %v", keyword, err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next(){
+		var page Page
+		if err:=rows.Scan(&page.Id, &page.Title, &page.Source, &page.CreateTime, &page.UpdateTime); err != nil{
+			return nil, fmt.Errorf("pagesBySearchKeyword %s: %v", keyword, err)
+		}
+		pages = append(pages, page)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("pagesBySearchKeyword %s: %v", keyword, err)
+	}
+	return pages, nil
 }
 
 func getPageByTitle(title string) (Page, error){
