@@ -14,6 +14,7 @@ interface Page {
 const Page: React.FC = () => {
   const { title } = useParams<{ title: string }>();
   const [page, setPage] = useState<Page | null>(null);
+  const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPageByTitle = async () => {
@@ -21,14 +22,19 @@ const Page: React.FC = () => {
         const res = await axios.get<Page>(`/api/pages/${title}`, {
           headers: { "Content-Type": "application/json" },
         });
+        setError(false);
         setPage(res.data);
       } catch (err) {
-        console.log(err);
+        setError(true);
       }
     };
 
     fetchPageByTitle();
   }, [title]);
+
+  if (error) {
+    return <p>Error</p>;
+  }
 
   if (!page) {
     return <p>Loading page content...</p>; // `page` が `null` の場合に対応

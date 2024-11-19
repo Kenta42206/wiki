@@ -43,7 +43,7 @@ func main(){
 	r:=gin.Default();
 
 	r.GET("/pages", pagesBySearchKeyword)
-	r.GET("/pages/:id", pageByTitle)
+	r.GET("/pages/:title", pageByTitle)
 	r.POST("/pages", postPage)
 	r.Run()
 	
@@ -53,6 +53,8 @@ func pagesBySearchKeyword(c *gin.Context){
 
 	keyword := c.Query("q")
 	pages, err := getpagesBySearchKeyword(keyword)
+
+	fmt.Println(len(pages))
 
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err})
@@ -66,12 +68,12 @@ func pagesBySearchKeyword(c *gin.Context){
 
 func pageByTitle(c *gin.Context){
 
-	page, err := getPageByTitle(c.Param("id"))
+	page, err := getPageByTitle(c.Param("title"))
 
 	
 
 	if err !=nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err":err})
+		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
 		fmt.Println(err)
 		return
 	}
@@ -109,7 +111,7 @@ func postPage(c *gin.Context){
 
 func getpagesBySearchKeyword(keyword string)([]Page,error){
 	var pages []Page
-	rows, err := db.Query("select * from page where source &@ $1", keyword)
+	rows, err := db.Query("select * from pages where source &@ $1", keyword)
 	if err != nil {
 		return nil, fmt.Errorf("pagesBySearchKeyword %s: %v", keyword, err)
 	}
@@ -133,7 +135,7 @@ func getPageByTitle(title string) (Page, error){
 	var page Page
 	var html string
 	
-	row := db.QueryRow("SELECT * FROM page WHERE title = $1", title)
+	row := db.QueryRow("SELECT * FROM pages WHERE title = $1", title)
 
 	if err := row.Scan(&page.Id, &page.Title, &page.Source, &page.CreateTime, &page.UpdateTime); err != nil{
 		if err == sql.ErrNoRows{
@@ -155,7 +157,7 @@ func getPageByTitle(title string) (Page, error){
 
 func addPage(page Page) (int, error){
 
-	prepare := "insert into page (title,source,create_time,update_time) values ($1,$2,current_timestamp,current_timestamp) returning id;"
+	prepare := "insert into pages (title,source,create_time,update_time) values ($1,$2,current_timestamp,current_timestamp) returning id;"
 	id := 0
 	err := db.QueryRow(prepare,page.Title,page.Source).Scan(&id);
 	if err != nil{
