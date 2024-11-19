@@ -111,6 +111,7 @@ func postPage(c *gin.Context){
 
 func getpagesBySearchKeyword(keyword string)([]Page,error){
 	var pages []Page
+	var html string
 	rows, err := db.Query("select * from pages where source &@ $1", keyword)
 	if err != nil {
 		return nil, fmt.Errorf("pagesBySearchKeyword %s: %v", keyword, err)
@@ -123,6 +124,10 @@ func getpagesBySearchKeyword(keyword string)([]Page,error){
 		if err:=rows.Scan(&page.Id, &page.Title, &page.Source, &page.CreateTime, &page.UpdateTime); err != nil{
 			return nil, fmt.Errorf("pagesBySearchKeyword %s: %v", keyword, err)
 		}
+		md := []byte(page.Source)
+		html = string(mdToHTML(md))
+
+		page.BodyHtml = html
 		pages = append(pages, page)
 	}
 	if err := rows.Err(); err != nil {
@@ -165,6 +170,8 @@ func addPage(page Page) (int, error){
 	}
     return id, nil
 }
+
+
 
 func mdToHTML(md []byte) []byte {
 	// create markdown parser with extensions
