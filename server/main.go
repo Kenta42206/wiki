@@ -55,7 +55,8 @@ func main(){
 	r:=gin.Default();
 
 	r.GET("/pages", pagesBySearchKeyword)
-	r.GET("/pages/:title", pageByTitle)
+	r.GET("/pages/title/:title", pageByTitle)
+	r.GET("/pages/recently-created", pagesOrderByCreateTime)
 	r.POST("/pages", postPage)
 	r.PUT("/pages/:id", updatePage)
 	r.DELETE("/pages/:id", deletePage)
@@ -95,6 +96,16 @@ func pageByTitle(c *gin.Context){
 	c.JSON(http.StatusOK, page)
 }
 
+func pagesOrderByCreateTime(c *gin.Context){
+	pages, err := getPagesOrderByCreateTime()
+	if err != nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
+		fmt.Println(err)
+		return
+	}
+	c.JSON(http.StatusOK, pages)
+}
+
 func postPage(c *gin.Context){
 
 	var page PageCreate 
@@ -116,30 +127,6 @@ func postPage(c *gin.Context){
 
 
 }
-
-// v1
-
-// func postPage(c *gin.Context){
-
-// 	var page PageCreate 
-// 	if err := c.ShouldBindBodyWithJSON(&page); err != nil{
-// 		fmt.Println(err)
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-//         return
-// 	}
-
-// 	new, err := addPage(page)
-
-// 	if err != nil{
-// 		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-// 		fmt.Println(err)
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusCreated, new)
-
-
-// }
 
 func updatePage(c *gin.Context){
 	var page PageUpdate
@@ -220,6 +207,7 @@ func getPageByTitle(title string) (Page, error){
 		return page, fmt.Errorf("pageByTitle %s: %v", title, err)
 	}
 
+
 	md := []byte(page.Source)
 	html = string(mdToHTML(md))
 
@@ -229,6 +217,34 @@ func getPageByTitle(title string) (Page, error){
 	
 
 	return page, nil
+}
+
+func getPagesOrderByCreateTime()([]Page, error){
+	var pages []Page
+	var html string
+	
+	rows, err := db.Query("select * from pages order by create_time desc limit 10;")
+	if err!= nil{
+		return nil, fmt.Errorf("getPagesOrderByUpdateTime : %v", err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next(){
+		var page Page
+		if err:=rows.Scan(&page.Id, &page.Title, &page.Source, &page.CreateTime, &page.UpdateTime); err != nil{
+			return nil, fmt.Errorf("getPagesOrderByUpdateTime : %v", err)
+		}
+		md := []byte(page.Source)
+		html = string(mdToHTML(md))
+
+		page.BodyHtml = html
+		pages = append(pages, page)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("getPagesOrderByUpdateTime : %v", err)
+	}
+	return pages, nil
 }
 
 func addPage(page PageCreate, c *gin.Context) (int32, error){
@@ -279,18 +295,6 @@ func addPage(page PageCreate, c *gin.Context) (int32, error){
 	return id,nil
 }
 
-// v1
-
-// func addPage(page PageCreate) (int, error){
-
-// 	prepare := "insert into pages (title,source,create_time,update_time) values ($1,$2,current_timestamp,current_timestamp) returning id;"
-// 	id := 0
-// 	err := db.QueryRow(prepare,page.Title,page.Source).Scan(&id);
-// 	if err != nil{
-// 		return 0,fmt.Errorf("addPage: %v", err)
-// 	}
-//     return id, nil
-// }
 
 func updatePageAndPageRevs(page PageUpdate, c *gin.Context) (int32,error){
 

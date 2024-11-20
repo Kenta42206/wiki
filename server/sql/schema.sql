@@ -18,6 +18,8 @@ create table page_revs(
 CREATE EXTENSION IF NOT EXISTS pgroonga;
 
 CREATE INDEX pgroonga_content_index ON pages USING pgroonga (source);
+-- 最新10件の取得のためのインデックス
+CREATE INDEX idx_pages_create_time ON pages (create_time DESC);
 
 INSERT INTO pages(
 	title, source, create_time, update_time)

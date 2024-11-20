@@ -12,13 +12,18 @@ export interface PageUpdate {
   source: string;
 }
 
-export const getPageByTitle = async (title: string) => {
-  const res = await axios.get(`/api/pages/${title}`);
+export const getPageByTitle = async (title?: string) => {
+  const res = await axios.get(`/api/pages/title/${title}`);
   return res.data;
 };
 
 export const getPagesBySearchKeyord = async (keyword: string) => {
   const res = await axios.get<Page[]>("/api/pages", { params: { q: keyword } });
+  return res.data;
+};
+
+export const getPagesOrderByCreateTime = async () => {
+  const res = await axios.get<Page[]>("/api/pages/recently-created");
   return res.data;
 };
 

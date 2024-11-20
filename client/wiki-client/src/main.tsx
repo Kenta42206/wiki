@@ -7,19 +7,22 @@ import Home from "./pages/Home.tsx";
 import Page from "./pages/page/Page.tsx";
 import PageSeachResult from "./pages/page/PageSeachResult.tsx";
 import PageCreateForm from "./pages/page/PageCreateForm.tsx";
+import { SidebarProvider } from "./context/SideBarContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/pages/:title" element={<Page />} />
-          <Route path="/pages/" element={<PageSeachResult />} />
-          <Route path="/pages/create" element={<PageCreateForm />} />
-        </Route>
-      </Routes>
+      <SidebarProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/pages/:title" element={<Page />} />
+            <Route path="/pages/" element={<PageSeachResult />} />
+            <Route path="/pages/create" element={<PageCreateForm />} />
+          </Route>
+        </Routes>
+      </SidebarProvider>
     </BrowserRouter>
   </StrictMode>
 );

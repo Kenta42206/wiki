@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@blueprintjs/core";
 import PageEditForm from "./PageEditForm";
+import { useSidebar } from "../../context/SideBarContext";
 
 interface Page {
   id: number;
@@ -17,13 +18,12 @@ const Page: React.FC = () => {
   const [page, setPage] = useState<Page | null>(null);
   const [error, setError] = useState<boolean>(false);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const { articleTextSize, articleColor } = useSidebar();
 
   useEffect(() => {
-    const fetchPageByTitle = async () => {
+    const getPagesByTitle = async () => {
       try {
-        const res = await axios.get<Page>(`/api/pages/${title}`, {
-          headers: { "Content-Type": "application/json" },
-        });
+        const res = await axios.get<Page>(`/api/pages/title/${title}`);
         setError(false);
         setPage(res.data);
       } catch (err) {
@@ -31,7 +31,8 @@ const Page: React.FC = () => {
       }
     };
 
-    fetchPageByTitle();
+    getPagesByTitle();
+    setIsEditing(false);
   }, [title]);
 
   if (error) {
@@ -53,19 +54,24 @@ const Page: React.FC = () => {
   return (
     <div>
       {isEditing ? (
-        <div className="flex flex-col items-center bg-gray-100 min-h-screen py-8 px-4">
+        <div className="flex flex-col items-center  min-h-screen py-8 px-4">
           <PageEditForm page={page} onCancel={handleEditCancel} />
         </div>
       ) : (
-        <div className="flex flex-col items-center bg-gray-100 min-h-screen py-8 px-4">
-          <div className="flex items-center bg-white max-w-4xl w-full p-4  shadow-md border-b-4 ">
+        <div className="flex flex-col items-center  min-h-screen py-8 px-4">
+          <div className="flex items-center max-w-5xl w-full p-8  border-b-4 ">
             <h1 className="flex-1 text-5xl font-bold  ">{page.title}</h1>
-            <Button intent="success" onClick={handleEditopen} className="h-3">
+            <Button
+              intent="success"
+              icon="document"
+              onClick={handleEditopen}
+              className="h-3"
+            >
               編集
             </Button>
           </div>
           <article
-            className="prose prose-sm bg-white max-w-4xl w-full  p-4 shadow-md"
+            className={`${articleTextSize} ${articleColor} max-w-5xl w-full  p-8 `}
             dangerouslySetInnerHTML={{ __html: page.bodyHtml }}
           ></article>
         </div>

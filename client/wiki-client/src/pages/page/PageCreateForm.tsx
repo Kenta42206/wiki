@@ -2,11 +2,13 @@ import { Button, FormGroup, InputGroup, TextArea } from "@blueprintjs/core";
 import React, { useState } from "react";
 import { createPage, PageCreate } from "../../services/PageService";
 import { useNavigate } from "react-router-dom";
+import { useSidebar } from "../../context/SideBarContext";
 
 const PageCreateForm = () => {
   const [title, setTitle] = useState<string>("");
   const [source, setSource] = useState<string>("");
   const nav = useNavigate();
+  const { textareaStyle } = useSidebar();
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -31,17 +33,36 @@ const PageCreateForm = () => {
   };
 
   return (
-    <div className="max-w-4xl w-full">
-      <FormGroup>
-        <InputGroup large value={title} onChange={handleTitleChange} />
-      </FormGroup>
-      <FormGroup>
-        <TextArea value={source} fill rows={10} onChange={handleSourceChange} />
-      </FormGroup>
-      <div className="space-x-1 flex justify-end">
-        <Button onClick={handleCreateButtonClick} intent="success">
-          作成
-        </Button>
+    <div className="flex flex-col items-center  min-h-screen py-8 px-4">
+      <div className="max-w-4xl w-full">
+        <FormGroup>
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={handleTitleChange}
+            className={`px-4 py-2 border w-full border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${textareaStyle}`}
+            placeholder="Enter your title"
+          />
+        </FormGroup>
+        <FormGroup>
+          <TextArea
+            value={source}
+            fill
+            rows={10}
+            onChange={handleSourceChange}
+            className={`${textareaStyle} rounded-lg`}
+          />
+        </FormGroup>
+        <div className="space-x-1 flex justify-end">
+          <Button
+            onClick={handleCreateButtonClick}
+            icon="document"
+            intent="success"
+          >
+            作成
+          </Button>
+        </div>
       </div>
     </div>
   );
