@@ -1,3 +1,4 @@
+-- pageテーブル
 create table pages(
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     title varchar(513) unique,
@@ -6,21 +7,28 @@ create table pages(
     update_time timestamp
 );
 
+-- page_revs(更新履歴)テーブル
 create table page_revs(
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     page_id INTEGER not null,
     title varchar(513) not null,
     source text not null,
-    author varchar(513) not null default 'toriaezu@example.com',
+    author varchar(513) not null default 'toriaezu@example.com', -- 認証機能未実装のため、とりあえずデフォルトで'toriaezu@example.com'を更新者に設定する
     update_time timestamp
 );
 
+-- pgroonga(全文検索用Extension)
 CREATE EXTENSION IF NOT EXISTS pgroonga;
 
+-- For dev
+SET enable_seqscan = off;
+
+-- 全文検索用インデックス
 CREATE INDEX pgroonga_content_index ON pages USING pgroonga (source);
 -- 最新10件の取得のためのインデックス
 CREATE INDEX idx_pages_create_time ON pages (create_time DESC);
 
+-- テストデータ
 INSERT INTO pages(
 	title, source, create_time, update_time)
 	VALUES ('test1', '# タスク管理アプリ
