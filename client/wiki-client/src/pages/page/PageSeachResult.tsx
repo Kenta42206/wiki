@@ -22,7 +22,9 @@ const PageSeachResult: React.FC = () => {
           to={`/pages/${page.title}`}
           className="bg-white max-w-4xl w-full hover:no-underline mb-2"
         >
-          <Card className={` transition ${screenColor}  ${hoverElement}`}>
+          <Card
+            className={`border-2 border-gray-300 transition ${screenColor}  ${hoverElement}`}
+          >
             <h1 className="text-lg border-b-4">{page.title}</h1>
             <article
               className="py-3"

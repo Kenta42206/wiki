@@ -46,12 +46,12 @@ const PageCreateForm = () => {
           />
         </FormGroup>
         <FormGroup>
-          <TextArea
+          <textarea
             value={source}
-            fill
             rows={10}
             onChange={handleSourceChange}
-            className={`${textareaStyle} rounded-lg`}
+            placeholder="Enter your article"
+            className={`px-4 py-2 ${textareaStyle} w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg`}
           />
         </FormGroup>
         <div className="space-x-1 flex justify-end">

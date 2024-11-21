@@ -64,12 +64,11 @@ const PageEditForm: React.FC<PageEditFormProps> = ({ page, onCancel }) => {
         />
       </FormGroup>
       <FormGroup>
-        <TextArea
+        <textarea
           value={source}
-          fill
           rows={10}
           onChange={handleSourceChange}
-          className={`${textareaStyle}`}
+          className={`px-4 py-2 w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg ${textareaStyle} `}
         />
       </FormGroup>
       <div className="space-x-1 flex justify-end">

@@ -29,13 +29,14 @@ const SearchBar = () => {
     }
   };
   return (
-    <div className="flex items-center border-2 rounded-lg overflow-hidden ">
+    <div className="flex items-center border-1 rounded-lg overflow-hidden ">
       <input
         type="search"
         onChange={handleSearchKeywordChange}
         onKeyDown={handleEnterKeyDown}
         placeholder="Search..."
-        className={`px-4 py-1 w-full text-sm ${textareaStyle} border-none focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        className={`px-4 py-1 border w-full border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${textareaStyle}`}
+        // className={`px-4 py-1 w-full text-sm ${textareaStyle}  focus:outline-none focus:ring-2 focus:ring-blue-500`}
       />
     </div>
   );

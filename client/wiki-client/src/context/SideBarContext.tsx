@@ -121,7 +121,6 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [recentPages, setRecentPages] = useState<Page[]>();
 
-  // 最新10件
   const getRecentPages = async () => {
     try {
       const pages = await getPagesOrderByCreateTime();

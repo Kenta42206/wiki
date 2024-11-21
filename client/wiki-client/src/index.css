@@ -3,3 +3,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+ul li ul li a {
+  text-decoration: underline;
+}
+
+ul li ul li a span {
+  text-decoration: none;
+  display: inline-block;
+}
