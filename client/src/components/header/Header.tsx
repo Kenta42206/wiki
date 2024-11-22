@@ -5,13 +5,18 @@ import { useSidebar } from "../../context/SideBarContext";
 
 function Header() {
   const { screenColor, textColor, hoverElement } = useSidebar();
+
   return (
     <>
-      <Navbar className={`${screenColor} flex items-center justify-between`}>
+      <Navbar
+        className={`${screenColor} shadow-none border-b-2 flex items-center justify-between`}
+      >
         <NavbarGroup>
           <div className="flex items-center">
             <NavbarHeading>
-              <Link to="/">wiki</Link>
+              <Link to="/" className="hover:no-underline transition">
+                wiki
+              </Link>
             </NavbarHeading>
             <Navbar.Divider />
             <SearchBar />
