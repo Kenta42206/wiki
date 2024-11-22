@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"wiki/server/models"
@@ -20,11 +20,9 @@ func PagesBySearchKeyword(c *gin.Context){
 	keyword := c.Query("q")
 	pages, err := services.GetpagesBySearchKeyword(keyword)
 
-	fmt.Println(len(pages))
-
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		createErrorLogger("PagesBySearchKeyword",err,c)
 		return
 	}
 
@@ -37,19 +35,18 @@ func PagesBySearchKeyword(c *gin.Context){
 // ページが存在しない、またはエラーが発生した場合は、500エラー(Todo: エラーハンドリング) とエラーメッセージを返す。
 // 成功した場合は、ページの詳細をHTTPステータス200で返す。
 func PageByTitle(c *gin.Context){
-
 	page, err := services.GetPageByTitle(c.Param("title"))
 
-	
-
 	if err !=nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		c.JSON(http.StatusNotFound, gin.H{"err":err.Error()})
+		createErrorLogger("PageByTitle",err,c)
 		return
 	}
 
 	c.JSON(http.StatusOK, page)
 }
+
+
 
 // 作成日時でソートされたページを最大10件取得し、
 // そのページの詳細をJSON形式で返す。
@@ -60,7 +57,7 @@ func PagesOrderByCreateTime(c *gin.Context){
 	pages, err := services.GetPagesOrderByCreateTime()
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		createErrorLogger("PagesOrderByCreateTime", err, c)
 		return
 	}
 	c.JSON(http.StatusOK, pages)
@@ -76,22 +73,20 @@ func PostPage(c *gin.Context){
 
 	var page models.PageCreate 
 	if err := c.ShouldBindBodyWithJSON(&page); err != nil{
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		createErrorLogger("PostPage", err, c)
         return
 	}
-
+	
 	new, err := services.AddPage(page, c)
-
+	
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		createErrorLogger("PostPage", err, c)
 		return
 	}
 
 	c.JSON(http.StatusCreated, new)
-
-
 }
 
 // 指定されたページを更新するためのAPIエンドポイント。
@@ -103,16 +98,16 @@ func PostPage(c *gin.Context){
 func UpdatePage(c *gin.Context){
 	var page models.PageUpdate
 	if err := c.ShouldBindJSON(&page); err != nil{
-		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		createErrorLogger("UpdatePage", err, c)
 		return
 	}
-
+	
 	id,err := services.UpdatePageAndPageRevs(page,c)
-
+	
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		createErrorLogger("UpdatePage", err, c)
 		return
 	}
 
@@ -129,18 +124,28 @@ func DeletePage(c *gin.Context){
 	paramId, err := strconv.ParseInt(c.Param("id"),10,32)
 	if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		createErrorLogger("DeletePage", err, c)
 		return
     }
 	paramId32 := int32(paramId)
 	id, err := services.DeletePageAndPageRevs(paramId32,c)
-
+	
 	if err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"err":err.Error()})
-		fmt.Println(err)
+		createErrorLogger("DeletePage", err, c)
 		return
 	}
 
 	c.JSON(http.StatusNoContent, id)
+}
 
+// エラーレベルのログを出力するメソッド
+//
+// 引数:
+//   s: メソッド名
+//   e: serviceでのerror
+//   c: Ginコンテキスト
+func createErrorLogger(s string, e error, c *gin.Context){
+	g := slog.Group("request", "method", c.Request.Method, "url", c.Request.URL)
+	slog.Error(s, "msg", e.Error(), g)
 }

@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// select * from pages where source &@ $1
+//
 // 指定された検索キーワードに一致するページを取得し、
 // 各ページのMarkdownソースをHTMLに変換した結果を返す。
 //
@@ -48,6 +50,8 @@ func GetpagesBySearchKeyword(keyword string)([]models.Page,error){
 	return pages, nil
 }
 
+// SELECT * FROM pages WHERE title = $1
+//
 // 指定されたタイトルに一致するページを取得し、
 // そのページのMarkdownソースをHTMLに変換した結果を返す。
 // 
@@ -66,21 +70,21 @@ func GetPageByTitle(title string) (models.Page, error){
 
 	if err := row.Scan(&page.Id, &page.Title, &page.Source, &page.CreateTime, &page.UpdateTime); err != nil{
 		if err == sql.ErrNoRows{
-			return page, fmt.Errorf("pageByTitle %s: no such page", title)
+			return page, fmt.Errorf("GetPageByTitle: Title [%s] no such page", title)
 		}
-		return page, fmt.Errorf("pageByTitle %s: %v", title, err)
+		return page, fmt.Errorf("GetPageByTitle: Title [%s] %v", title, err)
 	}
-
 
 	md := []byte(page.Source)
 	html = string(utils.MdToHTML(md))
 
 	page.BodyHtml = html
 	
-
 	return page, nil
 }
 
+// select * from pages order by create_time desc limit 10;
+//
 // 作成日時でソートされたページを最大10件取得し、
 // 各ページのMarkdownソースをHTMLに変換した結果を返す。
 // 
@@ -115,6 +119,13 @@ func GetPagesOrderByCreateTime()([]models.Page, error){
 	return pages, nil
 }
 
+// begin
+//
+// insert into pages (title,source,create_time,update_time) values ($1,$2,$3,$4) returning id, title, source;
+// INSERT INTO page_revs(page_id, title, source, update_time)VALUES ($1, $2, $3, $4);
+// 
+// commit
+//
 // 新しいページをデータベースに追加し、
 // 新しいページのIDを返す。
 // 
@@ -173,6 +184,13 @@ func AddPage(page models.PageCreate, c *gin.Context) (int32, error){
 	return id,nil
 }
 
+// begin
+// 
+// insert into page_revs (title, source, update_time, page_id) select title, source, $1, id from pages where id = $2;
+// update pages set title = $1, source = $2, update_time = $3 where id = $4;
+//
+// commit
+//
 // 指定されたページを更新し、その履歴も更新する。
 // 
 // 引数:
@@ -221,7 +239,16 @@ func UpdatePageAndPageRevs(page models.PageUpdate, c *gin.Context) (int32,error)
 
 }
 
+// begin
+//
+// delete from page_revs where page_id = $1
+//
+// delete from pages where id = $1
+//
+// commit
+//
 // 指定されたIDのページとその履歴を削除する。
+// 履歴⇒ページの順に削除する。
 // 
 // 引数:
 //   id: 削除するページのID。

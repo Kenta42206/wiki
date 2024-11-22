@@ -7,7 +7,7 @@ type Page struct {
 	Title      string    `json:"title"`
 	Source     string    `json:"source"`
 	BodyHtml   string    `json:"bodyHtml"`
-	CreateTime string    `json:"createTime"`
+	CreateTime time.Time    `json:"createTime"`
 	UpdateTime time.Time `json:"updateTime"`
 }
 
