@@ -1,0 +1,34 @@
+services:
+  client:
+    container_name: front-end
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+  server:
+    container_name: back-end
+    build:
+      context: ./server
+    env_file: ./server/.env
+    tty: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+  postgres:
+    container_name: db
+    build: ./db
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-store:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: wiki
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+volumes:
+  db-store:
