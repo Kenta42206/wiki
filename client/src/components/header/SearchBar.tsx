@@ -1,4 +1,3 @@
-import { InputGroup } from "@blueprintjs/core";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getPagesBySearchKeyord } from "../../services/PageService";

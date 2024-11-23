@@ -1,10 +1,10 @@
-import axios, { AxiosError } from "axios";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "@blueprintjs/core";
 import PageEditForm from "./PageEditForm";
 import { useSidebar } from "../../context/SideBarContext";
 import Error from "../Error";
+import axios from "axios";
 
 interface Page {
   id: number;
@@ -85,14 +85,8 @@ const Page: React.FC = () => {
         </div>
       ) : (
         <div className="flex flex-col items-center   min-h-screen py-8 px-4">
-          <div>
-            <div className="flex justify-end">
-              <h3>
-                作成日：<span>{formatDate(page.createTime)}</span>
-              </h3>
-            </div>
-            <div className="flex items-center max-w-5xl w-full p-8  border-b-4 ">
-              <h1 className="flex-1 text-5xl font-bold  ">{page.title}</h1>
+          <div className="max-w-5xl w-full">
+            <div className="flex justify-end mb-2 mr-8">
               <Button
                 intent="success"
                 icon="document"
@@ -101,6 +95,12 @@ const Page: React.FC = () => {
               >
                 編集
               </Button>
+            </div>
+            <div className="flex items-end max-w-5xl w-full px-8  border-b-4 ">
+              <h1 className="flex-1 text-5xl font-bold  pb-8">{page.title}</h1>
+              <h3 className="pb-4">
+                投稿日：<span>{formatDate(page.createTime)}</span>
+              </h3>
             </div>
             <article
               className={`${articleTextSize} ${articleColor} max-w-5xl w-full  p-8 `}

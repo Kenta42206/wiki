@@ -11,8 +11,7 @@ const PageSeachResult: React.FC = () => {
 
   const pages = location.state?.pages;
   const keyword = searchParams.get("q");
-  console.log(pages);
-  console.log(keyword);
+
   return (
     <div className="flex flex-col items-center min-h-screen py-8 px-4">
       <h1 className="text-lg mb-4">検索結果：{keyword}</h1>

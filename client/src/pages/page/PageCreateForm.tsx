@@ -1,4 +1,4 @@
-import { Button, FormGroup, InputGroup, TextArea } from "@blueprintjs/core";
+import { Button, FormGroup } from "@blueprintjs/core";
 import React, { useState } from "react";
 import { createPage, PageCreate } from "../../services/PageService";
 import { useNavigate } from "react-router-dom";

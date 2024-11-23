@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Page from "./Page";
-import { Button, FormGroup, InputGroup, TextArea } from "@blueprintjs/core";
+import { Button, FormGroup } from "@blueprintjs/core";
 import { deletePage, PageUpdate, updatePage } from "../../services/PageService";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../../context/SideBarContext";
