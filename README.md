@@ -52,7 +52,7 @@
 
 
 ## Demo
-still preparing
+[Demo](https://github.com/Kenta42206/wiki/images/demo.gif)
 
 ## How To Use
 To clone and run this application, you'll need Git and Docker compose installed on your computer. From your command line:
